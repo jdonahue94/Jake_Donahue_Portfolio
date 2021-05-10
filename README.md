@@ -78,3 +78,11 @@ df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
 # Imputing MSSubClass 
 df['MSSubClass'] = df['MSSubClass'].fillna("None")
 ```
+Transformation
+
+While aggregation must return a reduced version of the data, transformation can return some transformed version of the full data to recombine. For such a transformation, the output is the same shape as the input. Here we are replacing NaN values with the group-wise median
+
+```
+# Imputing LotFrontage --> Calculating median neighborhood LotFrontage
+df["LotFrontage"] = df.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
+```

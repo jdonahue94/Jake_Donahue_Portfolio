@@ -1,12 +1,37 @@
 # Model 1 - Ty Pennington
-Ask a home buyer to describe their dream house, and they probably won't begin with the height of the basement ceiling or the proximity to an east-west railroad. But this dataset proves that much more influences price negotiations than the number of bedrooms or a white-picket fence. What this data set does not account for is what I believe to be one of the most valuable determinants of price, "beauty lies in the eye of the beholder." In other words, the value of a house is often subjective - what one person values at 1,000,000 another may value at 875,000
+Ask a home buyer to describe their dream house, and they probably won't begin with the height of the basement ceiling or the proximity to an east-west railroad. This dataset proves that much more influences price negotiations than the number of bedrooms or a white-picket fence. With 79 explanatory variables describing (almost) every aspect of residential homes in Groveland MA, this data set challenges us to predict the final price of each home. However, What this data set does not account for is what I believe to be one of the most valuable determinants of price, "beauty lies in the eye of the beholder." In other words, the value of a house is often subjective - what one person values at 1,000,000 another may value at 875,000
 
-With 79 explanatory variables describing (almost) every aspect of residential homes in (INSERT TOWN HERE), this data set challenges us to predict the final price of each home.
-
-Ty Pennington is an XGBoost predictive model built to predict residential housing prices in Ames Iowa. XGBoost is the leading model for working with standard tabular data (the type of data you store in Pandas DataFrames, as opposed to more exotic types of data like images and videos). XGBoost has become a widely used and really popular tool among Kaggle competitors and Data Scientists in industry, as it has been battle tested for production on large-scale problems. It is a highly flexible and versatile tool that can work through most regression, classification and ranking problems as well as user-built objective functions. 
+Ty Pennington is an XGBoost predictive model trained to predict residential housing prices in Groveland MA. XGBoost is the leading model for working with standard tabular data (the type of data you store in Pandas DataFrames, as opposed to more exotic types of data like images and videos). XGBoost has become a widely used and really popular tool among Kaggle competitors and Data Scientists, as it has been battle tested for production on large-scale problems. It is a highly flexible and versatile tool that can work through most regression, classification and ranking problems as well as user-built objective functions. 
 
 ## Part 1 - Data Cleaning
-Data cleaning is arguably the most import step in the data science process. However, it can easily become deeply frustrating and time intensive. Recent studies suggest that data scientists spend anywhere from 50% to 80% of their time cleaning data rather than creating insights. Questions that are often answered during the data cleaning process include: Why are some of my text fields garbled? What should I do about missing values? Why aren’t my dates formatted correctly?
+Why are some of my text fields garbled? What should I do about missing values? Why aren’t my dates formatted correctly? Does my data set contain outliers? Are my input features skewed? Is my target variable skewed? Data cleaning answers these questions and provides intuitive solutions. Arguably the most important step in the data science process, data cleaning can easily become deeply frustrating and time intensive. Recent studies suggest that data scientists spend anywhere from 50% to 80% of their time cleaning data rather than creating insights.
+
+### Outliers
+In plain english, an outlier is an observation that diverges from an overall pattern within a sample. Mathematically, an outlier is usually defined as an observation more than three standard deviations from the mean (although sometimes you'll see 2.5 or 2 as well). Most machine learning algorithms do not work well in the presence of outliers, as they are known to skew mean and standard deviation, reduce the effectiveness of statistical tests and decrease normality.
+
+There is no precise way to define outliers in general because of the specifics of each data set. However, there are multiple methods that can be used to identify "potential" otliers. As the domain experts, we must interpret the observations and decide whether a value is an outlier or not. Said identification methods include Z-scores, Robust Z-scores, I.Q.R measurements and basic visualizations.
+
+* `Univariate outliers` - can be found when we look at distribution of a single variable. Boxplots are commonly used to visualize and detect univariate outliers.
+* `Multi-variate outliers` - are outliers in an n-dimensional space. In order to find them, you have to look at distributions in multi-dimensions.
+
+```
+# Visualization of outliers
+sns.set_style('darkgrid')
+fig = sns.scatterplot(data=df, x=df['GrLivArea'], y=df['SalePrice'])
+fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Price (w/outliers)');
+```
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/outliers.PNG?raw=true" width="500" height="300" />
+
+```
+# Deleting outliers
+df = df.drop(df[(df['GrLivArea']>4000) & (df['SalePrice']<300000)].index)
+
+# Visualization w/o outliers
+sns.set_style('darkgrid')
+fig = sns.scatterplot(data=df, x=df['GrLivArea'], y=df['SalePrice'])
+fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Price (w/o outliers)');
+```
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/nooutliers.PNG?raw=true" width="500" height="300" />
 
 ### Handling Missing Values
 There are many ways data can end up with missing values. For example, a 2 bedroom house would not include a data point indicating the size of a third bedroom. Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values.

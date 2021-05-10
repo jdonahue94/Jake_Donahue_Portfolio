@@ -93,9 +93,9 @@ df['MoSold'] = df['MoSold'].astype(str)
 #### Mutual Information
 When presented with hundreds or thousands of description-less features, a new data set may often feel overwhelming. A great first step is to construct a ranking with a feature utility metric, a function measuring associations between a feature and the target. Said metric can be used to choose a smaller set of the most useful features to develop initially. Mutual information is a lot like correlation in that it measures a relationship between two quantities.
 
-Mutual information is a great general-purpose metric and especially useful at the start of feature development: easy to use and interpret, computationally efficient, theoretically well-founded, resistant to overfitting and able to detect any kind of relationship.
-
 Mutual information describes relationships in terms of uncertainty. The mutual information (MI) between two quantities is a measure of the extent to which knowledge of one quantity reduces uncertainty about the other. If you knew the value of a feature, how much more confident would you be about the target?
+
+Mutual information is a great general-purpose metric and especially useful at the start of feature development: easy to use and interpret, computationally efficient, theoretically well-founded, resistant to overfitting and able to detect any kind of relationship. Once we've identified a set of features with some potential (see top 10 below), it's time to start developing them.
 ```
 # Creating our feature matrix (X) and target vector (y)
 X = df.copy()

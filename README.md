@@ -23,7 +23,7 @@ fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Pr
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/outliers.PNG?raw=true" width="500" height="300" />
 
 ```
-# Deleting outliers
+# intuitively deleting outliers (bottom right corner)
 df = df.drop(df[(df['GrLivArea']>4000) & (df['SalePrice']<300000)].index)
 
 # Visualization w/o outliers

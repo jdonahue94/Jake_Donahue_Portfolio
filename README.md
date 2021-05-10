@@ -127,3 +127,4 @@ def plot_mi_scores(scores):
     plt.yticks(width, ticks)
     plt.title("Mutual Information Scores")
 ```
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/mutualinformation.PNG?raw=true" width="500" height="500" />

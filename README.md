@@ -9,3 +9,20 @@ Ty Pennington is an XGBoost predictive model built to predict residential housin
 There are many ways data can end up with missing values. For example, a 2 bedroom house would not include a data point indicating the size of a third bedroom. A homeowner being surveyed may choose not to share specific information regarding their property. Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values.
 
 In general, one can either drop columns with missing values or impute missing values. Dropping columns entirely can be useful when most values in a column are missing. Imputation fills in the missing value with some number. The imputed value won't be exactly right, however, it helps to produce more accurate predictive models. I've developed a few strategies to intuitively handle said missing values.
+
+```
+# Calculating percentage of missing values (per feature)
+nan = (df.isnull().sum() / len(df)) * 100
+nan = nan.drop(nan[nan == 0].index).sort_values(ascending=False)
+missing_percentage = pd.DataFrame({'% of Missing Values' : nan})
+missing_percentage.head(20)
+
+# Visualizing the percentages calculated above
+f, ax = plt.subplots(figsize=(10, 10))
+plt.xticks(rotation='90')
+nan = nan.sort_values()
+sns.barplot(x=nan.index, y=nan)
+plt.xlabel('Features', fontsize=15)
+plt.ylabel('Percentage', fontsize=15)
+plt.title('Percent of Missing Values by Feature', fontsize=15);
+```

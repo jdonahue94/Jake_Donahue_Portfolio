@@ -26,4 +26,54 @@ plt.xlabel('Features', fontsize=15)
 plt.ylabel('Percentage', fontsize=15)
 plt.title('Percent of Missing Values by Feature', fontsize=15);
 ```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/missingvaluespercentages.PNG?raw=true" width="600" height="500" />
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/missingvaluespercentages.PNG?raw=true" width="500" height="500" />
+```
+# Imputing missing pools --> ~99% of our observations do not have a pool
+df["PoolQC"] = df["PoolQC"].fillna("None")
+
+# Imputing MiscFeature 
+df["MiscFeature"] = df["MiscFeature"].fillna("None")
+
+# Imputung Alley 
+df["Alley"] = df["Alley"].fillna("None")
+
+# Imputing Fence -- N/A = no fence
+df["Fence"] = df["Fence"].fillna("None")
+
+# Imputing FireplaceQu
+df["FireplaceQu"] = df["FireplaceQu"].fillna("None")
+
+# Imputing garage information
+for column in ('GarageType', 'GarageFinish', 'GarageQual', 'GarageCond'): df[column] = df[column].fillna('None')
+for column in ('GarageYrBlt', 'GarageArea', 'GarageCars'): df[column] = df[column].fillna(0)
+
+# Imputing basement information
+for column in ('BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'): df[column] = df[column].fillna(0)
+for column in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'): df[column] = df[column].fillna('None')
+
+# Imputing masonary work
+df["MasVnrType"] = df["MasVnrType"].fillna("None")
+df["MasVnrArea"] = df["MasVnrArea"].fillna(0)
+
+# Imputing zoning --> most common observation
+df['MSZoning'] = df['MSZoning'].fillna(df['MSZoning'].mode()[0])
+
+# Imputing Functional --> NaN means typical
+df["Functional"] = df["Functional"].fillna("Typ")
+
+# Imputing Electrical --> most common observation
+df['Electrical'] = df['Electrical'].fillna(df['Electrical'].mode()[0])
+
+# Imputing KitchenQual --> most common observation
+df['KitchenQual'] = df['KitchenQual'].fillna(df['KitchenQual'].mode()[0])
+
+# Imputing Exterior1st and Exterior2nd --> most common observation
+df['Exterior1st'] = df['Exterior1st'].fillna(df['Exterior1st'].mode()[0])
+df['Exterior2nd'] = df['Exterior2nd'].fillna(df['Exterior2nd'].mode()[0])
+
+# Imputing SaleType --> most common observation
+df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
+
+# Imputing MSSubClass 
+df['MSSubClass'] = df['MSSubClass'].fillna("None")
+```

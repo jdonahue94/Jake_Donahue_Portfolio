@@ -27,8 +27,9 @@ plt.ylabel('Percentage', fontsize=15)
 plt.title('Percent of Missing Values by Feature', fontsize=15);
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/missingvaluespercentages.PNG?raw=true" width="500" height="500" />
+
 ```
-# Imputing missing pools --> ~99% of our observations do not have a pool
+# Imputing missing pools
 df["PoolQC"] = df["PoolQC"].fillna("None")
 
 # Imputing MiscFeature 
@@ -37,7 +38,7 @@ df["MiscFeature"] = df["MiscFeature"].fillna("None")
 # Imputung Alley 
 df["Alley"] = df["Alley"].fillna("None")
 
-# Imputing Fence -- N/A = no fence
+# Imputing Fence
 df["Fence"] = df["Fence"].fillna("None")
 
 # Imputing FireplaceQu
@@ -55,23 +56,23 @@ for column in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinT
 df["MasVnrType"] = df["MasVnrType"].fillna("None")
 df["MasVnrArea"] = df["MasVnrArea"].fillna(0)
 
-# Imputing zoning --> most common observation
+# Imputing zoning
 df['MSZoning'] = df['MSZoning'].fillna(df['MSZoning'].mode()[0])
 
-# Imputing Functional --> NaN means typical
+# Imputing Functional
 df["Functional"] = df["Functional"].fillna("Typ")
 
-# Imputing Electrical --> most common observation
+# Imputing Electrical
 df['Electrical'] = df['Electrical'].fillna(df['Electrical'].mode()[0])
 
-# Imputing KitchenQual --> most common observation
+# Imputing KitchenQual
 df['KitchenQual'] = df['KitchenQual'].fillna(df['KitchenQual'].mode()[0])
 
-# Imputing Exterior1st and Exterior2nd --> most common observation
+# Imputing Exterior1st and Exterior2nd
 df['Exterior1st'] = df['Exterior1st'].fillna(df['Exterior1st'].mode()[0])
 df['Exterior2nd'] = df['Exterior2nd'].fillna(df['Exterior2nd'].mode()[0])
 
-# Imputing SaleType --> most common observation
+# Imputing SaleType
 df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
 
 # Imputing MSSubClass 

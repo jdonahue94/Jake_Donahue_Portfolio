@@ -5,7 +5,7 @@ With 79 explanatory variables describing (almost) every aspect of residential ho
 
 Ty Pennington is an XGBoost predictive model built to predict residential housing prices in Ames Iowa. XGBoost is the leading model for working with standard tabular data (the type of data you store in Pandas DataFrames, as opposed to more exotic types of data like images and videos). XGBoost has become a widely used and really popular tool among Kaggle competitors and Data Scientists in industry, as it has been battle tested for production on large-scale problems. It is a highly flexible and versatile tool that can work through most regression, classification and ranking problems as well as user-built objective functions. 
 
-### Handling Missing Values
+## Handling Missing Values
 There are many ways data can end up with missing values. For example, a 2 bedroom house would not include a data point indicating the size of a third bedroom. A homeowner being surveyed may choose not to share specific information regarding their property. Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values.
 
 In general, one can either drop columns with missing values or impute missing values. Dropping columns entirely can be useful when most values in a column are missing. Imputation fills in the missing value with some number. The imputed value won't be exactly right, however, it helps to produce more accurate predictive models. I've developed a few strategies to intuitively handle said missing values.
@@ -81,12 +81,31 @@ df['MSSubClass'] = df['MSSubClass'].fillna("None")
 # Imputing LotFrontage --> Calculating median neighborhood LotFrontage
 df["LotFrontage"] = df.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
 ```
-### Feature Engineering
-The goal of feature engineering is simply to make your data better suited to the problem at hand. For a feature to be useful, it must have a relationship to the target that your model is able to learn. For example, linear models are only able to learn linear relationships. Therefore, when building a linear model, your goal is to transform input features so that their relationship to the target becomes linear. Common benefits of feature engineering include improved predictive performance, reduced computational needs and improved interpretability of results.
+## Feature Engineering
+The goal of feature engineering is simply to make our data better suited to the problem at hand. For a feature to be useful, it must have a relationship to the target that our model is able to learn. For example, linear models are only able to learn linear relationships. Therefore, when building a linear model, your goal is to transform input features so that their relationship to the target becomes linear. Common benefits of feature engineering include improved predictive performance, reduced computational needs and improved interpretability of results.
 ```
 # Some of the non-numeric predictors are stored as numbers --> convert them into strings 
 df['MSSubClass'] = df['MSSubClass'].apply(str)
 df['OverallCond'] = df['OverallCond'].astype(str)
 df['YrSold'] = df['YrSold'].astype(str)
 df['MoSold'] = df['MoSold'].astype(str)
+```
+#### Mutual Information
+When presented with hundreds or thousands of description-less features, a new data set may often feel overwhelming. A great first step is to construct a ranking with a feature utility metric, a function measuring associations between a feature and the target. Said metric can be used to choose a smaller set of the most useful features to develop initially. Mutual information is a lot like correlation in that it measures a relationship between two quantities.
+
+Mutual information is a great general-purpose metric and especially useful at the start of feature development: easy to use and interpret, computationally efficient, theoretically well-founded, resistant to overfitting and able to detect any kind of relationship.
+
+Mutual information describes relationships in terms of uncertainty. The mutual information (MI) between two quantities is a measure of the extent to which knowledge of one quantity reduces uncertainty about the other. If you knew the value of a feature, how much more confident would you be about the target?
+```
+# Creating our feature matrix (X) and target vector (y)
+X = df.copy()
+y = X.pop("SalePrice")
+
+# Label encoding categorical columns
+for colname in X.select_dtypes("object"):
+    X[colname], _ = X[colname].factorize()
+
+# All discrete features should now have integer dtypes (double-check this before using MI!)
+X['LotFrontage'] = X['LotFrontage'].astype(int)
+discrete_features = X.dtypes == int
 ```

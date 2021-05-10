@@ -77,12 +77,16 @@ df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
 
 # Imputing MSSubClass 
 df['MSSubClass'] = df['MSSubClass'].fillna("None")
-```
-Transformation
 
-While aggregation must return a reduced version of the data, transformation can return some transformed version of the full data to recombine. For such a transformation, the output is the same shape as the input. Here we are replacing NaN values with the group-wise median
-
-```
 # Imputing LotFrontage --> Calculating median neighborhood LotFrontage
 df["LotFrontage"] = df.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
+```
+### Feature Engineering
+The goal of feature engineering is simply to make your data better suited to the problem at hand. For a feature to be useful, it must have a relationship to the target that your model is able to learn. For example, linear models are only able to learn linear relationships. Therefore, when building a linear model, your goal is to transform input features so that their relationship to the target becomes linear. Common benefits of feature engineering include improved predictive performance, reduced computational needs and improved interpretability of results.
+```
+# Some of the non-numeric predictors are stored as numbers --> convert them into strings 
+df['MSSubClass'] = df['MSSubClass'].apply(str)
+df['OverallCond'] = df['OverallCond'].astype(str)
+df['YrSold'] = df['YrSold'].astype(str)
+df['MoSold'] = df['MoSold'].astype(str)
 ```

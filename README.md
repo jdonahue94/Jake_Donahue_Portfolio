@@ -26,4 +26,4 @@ plt.xlabel('Features', fontsize=15)
 plt.ylabel('Percentage', fontsize=15)
 plt.title('Percent of Missing Values by Feature', fontsize=15);
 ```
-![](https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/missingvaluespercentages.PNG?raw=true=100x20)
+![](https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/missingvaluespercentages.PNG?raw=true=50x20)

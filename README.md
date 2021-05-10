@@ -33,6 +33,9 @@ fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Pr
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/nooutliers.PNG?raw=true" width="500" height="300" />
 
+#### Note
+I've decided to delete only two observations as they are blatant outliers (extremely large areas for very low prices). The training data probably contains additional outliers, however, removing all outliers may actually negatively impact our model if ever outliers were present in the test data. Instead of removing all outliers, I'll train our model to be robust on them.
+
 ### Handling Missing Values
 There are many ways data can end up with missing values. For example, a 2 bedroom house would not include a data point indicating the size of a third bedroom. Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values.
 

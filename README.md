@@ -8,7 +8,7 @@ Move that bus!
 ---
 
 ## Part 1 - Data Cleaning
-Why are some of my text fields garbled? What should I do about missing values? Why aren’t my dates formatted correctly? Does my data set contain outliers? Are my input features skewed? Is my target variable skewed? Data cleaning answers these questions and provides intuitive solutions. Arguably the most important step in the data science process, data cleaning can easily become deeply frustrating and time intensive. Recent studies suggest that data scientists spend anywhere from 50% to 80% of their time cleaning data rather than creating insights.
+Does my data contain outliers? What should I do about missing values? Is my data skewed? Why aren’t my dates formatted correctly? Data cleaning answers these questions and provides intuitive solutions. Arguably the most important step in the data science process, data cleaning can easily become deeply frustrating and time intensive. Recent studies suggest that data scientists spend anywhere from 50% to 80% of their time cleaning data rather than creating insights.
 
 ### Outliers
 In plain english, an outlier is an observation that diverges from an overall pattern within a sample. Mathematically, an outlier is usually defined as an observation more than three standard deviations from the mean (although sometimes you'll see 2.5 or 2 as well). Most machine learning algorithms do not work well in the presence of outliers, as they are known to skew mean and standard deviation, reduce the effectiveness of statistical tests and decrease normality.
@@ -95,36 +95,22 @@ plt.show()
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/normaldistribution.PNG?raw=true" width="500" height="300" />
 
-
-
-
-
-
-
-
-
 ### Handling Missing Values
-There are many ways data can end up with missing values. For example, a 2 bedroom house would not include a data point indicating the size of a third bedroom. Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values.
-
-In general, one can either drop columns with missing values or impute missing values. Dropping columns entirely can be useful when most values in a column are missing. Imputation fills in the missing value with some number. The imputed value won't be exactly right, however, it helps to produce more accurate predictive models. I've developed a few strategies to intuitively handle said missing values.
+Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values. In general, one can either drop columns with missing values or impute missing values. Dropping columns entirely can be useful when most values in a column are missing. Imputation fills in the missing value with some number. The imputed value won't be exactly right, however, it helps to produce more accurate predictive models. 
 
 ```python
-# Calculating percentage of missing values (per feature)
-nan = (df.isnull().sum() / len(df)) * 100
-nan = nan.drop(nan[nan == 0].index).sort_values(ascending=False)
-missing_percentage = pd.DataFrame({'% of Missing Values' : nan})
-missing_percentage.head(20)
-
-# Visualizing the percentages calculated above
-f, ax = plt.subplots(figsize=(10, 10))
-plt.xticks(rotation='90')
-nan = nan.sort_values()
-sns.barplot(x=nan.index, y=nan)
-plt.xlabel('Features', fontsize=15)
-plt.ylabel('Percentage', fontsize=15)
+# Calculating and visualizing the percent of missing values per feature
+sns.set_style("darkgrid")
+missing = df.isnull().sum()
+missing = missing[missing > 0]
+missing = (missing / len(df)) * 100
+missing.sort_values(ascending=True, inplace=True)
+sns.barplot(x=missing.tail(15), y=missing.tail(15).index)
+plt.xlabel('Percentage of Missing Columns', fontsize=12)
+plt.ylabel('Feature', fontsize=12)
 plt.title('Percent of Missing Values by Feature', fontsize=15);
 ```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/missingvaluespercentages.PNG?raw=true" width="500" height="500" />
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="500" />
 
 ```python
 # Imputing missing pools

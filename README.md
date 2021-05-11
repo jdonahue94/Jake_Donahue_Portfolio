@@ -44,6 +44,61 @@ Skewness measures the degree of distortion from the symmetrical bell curve or th
 
 Kurtosis is used to describe/measure the extreme values in one versus the other tail. It is actually the measure of outliers present in the distribution. High kurtosis in a data set is an indicator that data has heavy tails or outliers. Low kurtosis in a data set is an indicator that data has light tails or lack of outliers.
 
+```
+# Visualizing the distribution of our target variable
+sns.distplot(df['SalePrice'], fit=norm);
+
+# calculate the fitted parameters used by the function
+(mu, sigma) = norm.fit(df['SalePrice'])
+
+# Plotting the distribution
+plt.legend(['Normal dist. ($\mu=${:.2f} and $\sigma=${:.2f} )'.format(mu, sigma)], loc='best')
+plt.ylabel('Frequency')
+plt.title('SalePrice distribution')
+plt.ticklabel_format(style='plain');
+
+# Visualize the QQ-plot
+fig = plt.figure()
+res = stats.probplot(df['SalePrice'], plot=plt)
+plt.show();
+```
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/skeweddistribution.PNG?raw=true" width="500" height="300" />
+
+#### Note
+Our target variable (SalePrice) is clearly skewed to the right. Most ML models don't do well with non-normally distributed data. We can apply a log(1+x) tranform to fix the skew.
+
+```
+# log(1+x) transformation
+normalized = df.copy()
+normalized["SalePrice"] = np.log1p(normalized["SalePrice"])
+
+# Visualizing the distribution of our normalized target variable
+sns.distplot(normalized['SalePrice'] , fit=norm);
+
+# Calculate the fitted parameters used by the function
+(mu, sigma) = norm.fit(normalized['SalePrice'])
+
+# Plotting the distribution
+plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigma)], loc='best')
+plt.ylabel('Frequency')
+plt.title('SalePrice distribution')
+plt.ticklabel_format(style='plain');
+
+# Visualize the QQ-plot
+fig = plt.figure()
+res = stats.probplot(normalized['SalePrice'], plot=plt)
+plt.show()
+```
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/normaldistribution.PNG?raw=true" width="500" height="300" />
+
+
+
+
+
+
+
+
+
 ### Handling Missing Values
 There are many ways data can end up with missing values. For example, a 2 bedroom house would not include a data point indicating the size of a third bedroom. Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values.
 

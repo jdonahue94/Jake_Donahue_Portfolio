@@ -113,104 +113,25 @@ plt.title('Percent of Missing Values by Feature', fontsize=15);
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="300" />
 
 ```python
-# Imputing missing pools
+# Imputing values
 df["PoolQC"] = df["PoolQC"].fillna("None")
-
-# Imputing MiscFeature 
 df["MiscFeature"] = df["MiscFeature"].fillna("None")
-
-# Imputung Alley 
 df["Alley"] = df["Alley"].fillna("None")
-
-# Imputing Fence
 df["Fence"] = df["Fence"].fillna("None")
-
-# Imputing FireplaceQu
 df["FireplaceQu"] = df["FireplaceQu"].fillna("None")
-
-# Imputing garage information
 for column in ('GarageType', 'GarageFinish', 'GarageQual', 'GarageCond'): df[column] = df[column].fillna('None')
 for column in ('GarageYrBlt', 'GarageArea', 'GarageCars'): df[column] = df[column].fillna(0)
-
-# Imputing basement information
 for column in ('BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'): df[column] = df[column].fillna(0)
 for column in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'): df[column] = df[column].fillna('None')
-
-# Imputing masonary work
 df["MasVnrType"] = df["MasVnrType"].fillna("None")
 df["MasVnrArea"] = df["MasVnrArea"].fillna(0)
-
-# Imputing zoning
 df['MSZoning'] = df['MSZoning'].fillna(df['MSZoning'].mode()[0])
-
-# Imputing Functional
 df["Functional"] = df["Functional"].fillna("Typ")
-
-# Imputing Electrical
 df['Electrical'] = df['Electrical'].fillna(df['Electrical'].mode()[0])
-
-# Imputing KitchenQual
 df['KitchenQual'] = df['KitchenQual'].fillna(df['KitchenQual'].mode()[0])
-
-# Imputing Exterior1st and Exterior2nd
 df['Exterior1st'] = df['Exterior1st'].fillna(df['Exterior1st'].mode()[0])
 df['Exterior2nd'] = df['Exterior2nd'].fillna(df['Exterior2nd'].mode()[0])
-
-# Imputing SaleType
 df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
-
-# Imputing MSSubClass 
 df['MSSubClass'] = df['MSSubClass'].fillna("None")
-
-# Imputing LotFrontage --> Calculating median neighborhood LotFrontage
 df["LotFrontage"] = df.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
 ```
-## Feature Engineering
-The goal of feature engineering is simply to make our data better suited to the problem at hand. For a feature to be useful, it must have a relationship to the target that our model is able to learn. For example, linear models are only able to learn linear relationships. Therefore, when building a linear model, your goal is to transform input features so that their relationship to the target becomes linear. Common benefits of feature engineering include improved predictive performance, reduced computational needs and improved interpretability of results.
-
-```python
-# Some of the non-numeric predictors are stored as numbers --> convert them into strings 
-df['MSSubClass'] = df['MSSubClass'].apply(str)
-df['OverallCond'] = df['OverallCond'].astype(str)
-df['YrSold'] = df['YrSold'].astype(str)
-df['MoSold'] = df['MoSold'].astype(str)
-```
-#### Mutual Information
-When presented with hundreds or thousands of description-less features, a new data set may often feel overwhelming. A great first step is to construct a ranking with a feature utility metric, a function measuring associations between a feature and the target. Said metric can be used to choose a smaller set of the most useful features to develop initially. Mutual information is a lot like correlation in that it measures a relationship between two quantities.
-
-Mutual information describes relationships in terms of uncertainty. The mutual information (MI) between two quantities is a measure of the extent to which knowledge of one quantity reduces uncertainty about the other. If you knew the value of a feature, how much more confident would you be about the target?
-
-Mutual information is a great general-purpose metric and especially useful at the start of feature development: easy to use and interpret, computationally efficient, theoretically well-founded, resistant to overfitting and able to detect any kind of relationship. Once we've identified a set of features with some potential (see top 10 below), it's time to start developing them.
-
-```python
-# Creating our feature matrix (X) and target vector (y)
-X = df.copy()
-y = X.pop("SalePrice")
-
-# Label encoding categorical columns
-for colname in X.select_dtypes("object"):
-    X[colname], _ = X[colname].factorize()
-
-# All discrete features should now have integer dtypes (double-check this before using MI!)
-X['LotFrontage'] = X['LotFrontage'].astype(int)
-discrete_features = X.dtypes == int
-```
-```python
-# Creating a helper function to calculate our MI scores
-def make_mi_scores(X, y, discrete_features):
-    mi_scores = mutual_info_regression(X, y, discrete_features=discrete_features)
-    mi_scores = pd.Series(mi_scores, name="MI Scores", index=X.columns)
-    mi_scores = mi_scores.sort_values(ascending=False)
-    return mi_scores
-```
-```pyton
-# Creating a helper function to plot our MI scores
-def plot_mi_scores(scores):
-    scores = scores.sort_values(ascending=True)
-    width = np.arange(len(scores))
-    ticks = list(scores.index)
-    plt.barh(width, scores)
-    plt.yticks(width, ticks)
-    plt.title("Mutual Information Scores")
-```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/mutualinformation.PNG?raw=true" width="600" height="400" />

@@ -110,7 +110,7 @@ plt.xlabel('Percentage of Missing Columns', fontsize=12)
 plt.ylabel('Feature', fontsize=12)
 plt.title('Percent of Missing Values by Feature', fontsize=15);
 ```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="500" />
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="300" />
 
 ```python
 # Imputing missing pools

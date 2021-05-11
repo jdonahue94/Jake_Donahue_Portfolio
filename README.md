@@ -19,7 +19,7 @@ There is no precise way to define outliers in general because of the specifics o
 * `Multi-variate outliers` - are outliers in an n-dimensional space. In order to find them, you have to look at distributions in multi-dimensions.
 
 ```python
-# Visualization of outliers
+# Multi-variate analysis saleprice/grlivarea
 sns.set_style('darkgrid')
 fig = sns.scatterplot(data=df, x=df['GrLivArea'], y=df['SalePrice'])
 fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Price (w/outliers)');

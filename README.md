@@ -14,7 +14,7 @@ There is no precise way to define outliers in general because of the specifics o
 * `Univariate outliers` - can be found when we look at distribution of a single variable. Boxplots are commonly used to visualize and detect univariate outliers.
 * `Multi-variate outliers` - are outliers in an n-dimensional space. In order to find them, you have to look at distributions in multi-dimensions.
 
-```
+```python
 # Visualization of outliers
 sns.set_style('darkgrid')
 fig = sns.scatterplot(data=df, x=df['GrLivArea'], y=df['SalePrice'])
@@ -22,7 +22,7 @@ fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Pr
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/outliarzzz.PNG?raw=true" width="500" height="300" />
 
-```
+```python
 # intuitively deleting outliers (bottom right corner)
 df = df.drop(df[(df['GrLivArea']>4000) & (df['SalePrice']<300000)].index)
 
@@ -44,7 +44,7 @@ Skewness measures the degree of distortion from the symmetrical bell curve or th
 
 Kurtosis is used to describe/measure the extreme values in one versus the other tail. It is actually the measure of outliers present in the distribution. High kurtosis in a data set is an indicator that data has heavy tails or outliers. Low kurtosis in a data set is an indicator that data has light tails or lack of outliers.
 
-```
+```python
 # Visualizing the distribution of our target variable
 sns.distplot(df['SalePrice'], fit=norm);
 
@@ -67,7 +67,7 @@ plt.show();
 #### Note
 Our target variable (SalePrice) is clearly skewed to the right. Most ML models don't do well with non-normally distributed data. We can apply a log(1+x) transformation to fix the skew.
 
-```
+```python
 # log(1+x) transformation
 normalized = df.copy()
 normalized["SalePrice"] = np.log1p(normalized["SalePrice"])
@@ -104,7 +104,7 @@ There are many ways data can end up with missing values. For example, a 2 bedroo
 
 In general, one can either drop columns with missing values or impute missing values. Dropping columns entirely can be useful when most values in a column are missing. Imputation fills in the missing value with some number. The imputed value won't be exactly right, however, it helps to produce more accurate predictive models. I've developed a few strategies to intuitively handle said missing values.
 
-```
+```python
 # Calculating percentage of missing values (per feature)
 nan = (df.isnull().sum() / len(df)) * 100
 nan = nan.drop(nan[nan == 0].index).sort_values(ascending=False)
@@ -122,7 +122,7 @@ plt.title('Percent of Missing Values by Feature', fontsize=15);
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/missingvaluespercentages.PNG?raw=true" width="500" height="500" />
 
-```
+```python
 # Imputing missing pools
 df["PoolQC"] = df["PoolQC"].fillna("None")
 
@@ -177,7 +177,8 @@ df["LotFrontage"] = df.groupby("Neighborhood")["LotFrontage"].transform(lambda x
 ```
 ## Feature Engineering
 The goal of feature engineering is simply to make our data better suited to the problem at hand. For a feature to be useful, it must have a relationship to the target that our model is able to learn. For example, linear models are only able to learn linear relationships. Therefore, when building a linear model, your goal is to transform input features so that their relationship to the target becomes linear. Common benefits of feature engineering include improved predictive performance, reduced computational needs and improved interpretability of results.
-```
+
+```python
 # Some of the non-numeric predictors are stored as numbers --> convert them into strings 
 df['MSSubClass'] = df['MSSubClass'].apply(str)
 df['OverallCond'] = df['OverallCond'].astype(str)
@@ -190,7 +191,8 @@ When presented with hundreds or thousands of description-less features, a new da
 Mutual information describes relationships in terms of uncertainty. The mutual information (MI) between two quantities is a measure of the extent to which knowledge of one quantity reduces uncertainty about the other. If you knew the value of a feature, how much more confident would you be about the target?
 
 Mutual information is a great general-purpose metric and especially useful at the start of feature development: easy to use and interpret, computationally efficient, theoretically well-founded, resistant to overfitting and able to detect any kind of relationship. Once we've identified a set of features with some potential (see top 10 below), it's time to start developing them.
-```
+
+```python
 # Creating our feature matrix (X) and target vector (y)
 X = df.copy()
 y = X.pop("SalePrice")
@@ -203,7 +205,7 @@ for colname in X.select_dtypes("object"):
 X['LotFrontage'] = X['LotFrontage'].astype(int)
 discrete_features = X.dtypes == int
 ```
-```
+```python
 # Creating a helper function to calculate our MI scores
 def make_mi_scores(X, y, discrete_features):
     mi_scores = mutual_info_regression(X, y, discrete_features=discrete_features)
@@ -211,7 +213,7 @@ def make_mi_scores(X, y, discrete_features):
     mi_scores = mi_scores.sort_values(ascending=False)
     return mi_scores
 ```
-```
+```pyton
 # Creating a helper function to plot our MI scores
 def plot_mi_scores(scores):
     scores = scores.sort_values(ascending=True)

@@ -20,7 +20,7 @@ sns.set_style('darkgrid')
 fig = sns.scatterplot(data=df, x=df['GrLivArea'], y=df['SalePrice'])
 fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Price (w/outliers)');
 ```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/outliers.PNG?raw=true" width="500" height="300" />
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/outliarzzz.PNG?raw=true" width="500" height="300" />
 
 ```
 # intuitively deleting outliers (bottom right corner)
@@ -31,7 +31,7 @@ sns.set_style('darkgrid')
 fig = sns.scatterplot(data=df, x=df['GrLivArea'], y=df['SalePrice'])
 fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Price (w/o outliers)');
 ```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/nooutliers.PNG?raw=true" width="500" height="300" />
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/nooutliarz.PNG?raw=true" width="500" height="300" />
 
 #### Note
 I've decided to delete only two observations as they are blatant outliers (extremely large areas for very low prices). The training data probably contains additional outliers, however, removing all outliers may actually negatively impact our model if ever outliers were present in the test data. Instead of removing all outliers, I'll train our model to be robust on them.

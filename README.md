@@ -111,25 +111,39 @@ plt.title('Percent of Missing Values by Feature', fontsize=15);
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="300" />
 
 ```python
-# Imputing values
+# Miscellaneous features
 df["PoolQC"] = df["PoolQC"].fillna("None")
 df["MiscFeature"] = df["MiscFeature"].fillna("None")
 df["Alley"] = df["Alley"].fillna("None")
 df["Fence"] = df["Fence"].fillna("None")
 df["FireplaceQu"] = df["FireplaceQu"].fillna("None")
-for column in ('GarageType', 'GarageFinish', 'GarageQual', 'GarageCond'): df[column] = df[column].fillna('None')
-for column in ('GarageYrBlt', 'GarageArea', 'GarageCars'): df[column] = df[column].fillna(0)
-for column in ('BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'): df[column] = df[column].fillna(0)
-for column in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'): df[column] = df[column].fillna('None')
-df["MasVnrType"] = df["MasVnrType"].fillna("None")
-df["MasVnrArea"] = df["MasVnrArea"].fillna(0)
+df['MSSubClass'] = df['MSSubClass'].fillna("None")
+```
+```python
+# Miscellaneous features
 df['MSZoning'] = df['MSZoning'].fillna(df['MSZoning'].mode()[0])
-df["Functional"] = df["Functional"].fillna("Typ")
 df['Electrical'] = df['Electrical'].fillna(df['Electrical'].mode()[0])
 df['KitchenQual'] = df['KitchenQual'].fillna(df['KitchenQual'].mode()[0])
 df['Exterior1st'] = df['Exterior1st'].fillna(df['Exterior1st'].mode()[0])
 df['Exterior2nd'] = df['Exterior2nd'].fillna(df['Exterior2nd'].mode()[0])
 df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
-df['MSSubClass'] = df['MSSubClass'].fillna("None")
+```
+```python
+# Garage features
+for column in ('GarageType', 'GarageFinish', 'GarageQual', 'GarageCond'): df[column] = df[column].fillna('None')
+for column in ('GarageYrBlt', 'GarageArea', 'GarageCars'): df[column] = df[column].fillna(0)
+
+# Basement features
+for column in ('BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'): df[column] = df[column].fillna(0)
+for column in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'): df[column] = df[column].fillna('None')
+```
+```python
+# Masonary features
+df["MasVnrType"] = df["MasVnrType"].fillna("None")
+df["MasVnrArea"] = df["MasVnrArea"].fillna(0)
+```
+```python
+# Slightly more intuitive fills
 df["LotFrontage"] = df.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
+df["Functional"] = df["Functional"].fillna("Typ")
 ```

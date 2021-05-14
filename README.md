@@ -63,6 +63,39 @@ dataset.drop("LotFrontage", axis=1, inplace=True)
 neighborhoodfrontage = train.groupby("Neighborhood")[["LotFrontage"]].median()#.rename({"Median": "LotFrontage"}, axis=1)
 dataset = dataset.merge(neighborhoodfrontage, left_on="Neighborhood", right_index=True, how="left")
 ```
+### Baseline Model
+Establishing a baseline score will allow us to monitor our model's predictive performance following additional feature engineering. There are three metrics that are commonly used to evaluate the predictive performance of a regression model.
+
+* `Mean Squared Error (MSE)` - The MSE is calculated as the mean or average of the squared differences between predicted and expected target values. Squaring has the effect of inflating or magnifying large errors. That is, the larger the difference between the predicted and expected values, the larger the resulting squared positive error. This has the effect of “punishing” models more for larger errors. The calculation of MSE is considered fairly sensitive to outliers.
+
+* `Root Mean Squared Error (RMSE)` - Mathematically speaking, the RMSE is the square root of the MSE. It is a good idea to first establish a baseline RMSE using a naive predictive model. A model that achieves an RMSE better than the RMSE for the naive model has skill. Again, it is important to note that RMSE, similar to MSE, punishes models for larger errors and is sensitive to outliers.
+
+* `Root Mean Squared Logarithmic Error (RMSLE)` - Is an extension on RMSE that is commonly used when a regression model is trained on large actual and predicted values. For example, when predicting residential housing prices, values can range from $100,000 to $1,000,000. In the case of RMSLE, we take the log of our model's predictions and actual values so that large errors and outliers are scaled down to limit their effect.
+
+```python
+# MSE Scoring
+def score_dataset(model, df):
+  
+  # initiate X and y
+  X = df.copy()
+  y = X.pop("SalePrice")
+  
+  # preprocessing of X and y
+  X = pd.get_dummies(X).reset_index(drop=True)
+  log_y = np.log(y)
+  
+  # cross validation
+  scores = cross_val_score(model, X, log_y, cv=5, scoring="neg_mean_squared_error")
+  score = -1 * scores.mean()
+  score = np.sqrt(score)
+  return score
+```
+```python
+# Calling the above function
+boost = xgb.XGBRegressor()
+baseline = score_dataset(boost, train)
+print(f"Baseline RMSLE score = {baseline}")
+```
 
 ### Outliers
 In plain english, an outlier is an observation that diverges from an overall pattern within a sample. Mathematically, an outlier is usually defined as an observation more than three standard deviations from the mean (although sometimes you'll see 2.5 or 2 as well). Most machine learning algorithms do not work well in the presence of outliers, as they are known to skew mean and standard deviation, reduce the effectiveness of statistical tests and decrease normality.

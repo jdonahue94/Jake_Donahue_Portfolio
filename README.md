@@ -21,9 +21,9 @@ missing = missing[missing > 0]
 missing = (missing / len(df)) * 100
 missing.sort_values(ascending=True, inplace=True)
 sns.barplot(x=missing.tail(15), y=missing.tail(15).index)
-plt.xlabel('Percentage of Missing Columns', fontsize=12)
-plt.ylabel('Feature', fontsize=12)
-plt.title('Percent of Missing Values by Feature', fontsize=15);
+plt.xlabel("Percentage of Missing Columns", fontsize=12)
+plt.ylabel("Feature", fontsize=12)
+plt.title("Percent of Missing Values by Feature", fontsize=15);
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="300" />
 
@@ -40,28 +40,28 @@ df["Functional"] = df["Functional"].fillna("Typ")
 ```
 ```python
 # Miscellaneous features (mode)
-df['MSZoning'] = df['MSZoning'].fillna(df['MSZoning'].mode()[0])
-df['Electrical'] = df['Electrical'].fillna(df['Electrical'].mode()[0])
-df['KitchenQual'] = df['KitchenQual'].fillna(df['KitchenQual'].mode()[0])
-df['Exterior1st'] = df['Exterior1st'].fillna(df['Exterior1st'].mode()[0])
-df['Exterior2nd'] = df['Exterior2nd'].fillna(df['Exterior2nd'].mode()[0])
-df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
+df["MSZoning"] = df["MSZoning"].fillna(df["MSZoning"].mode()[0])
+df["Electrical"] = df["Electrical"].fillna(df["Electrical"].mode()[0])
+df["KitchenQual"] = df["KitchenQual"].fillna(df["KitchenQual"].mode()[0])
+df["Exterior1st"] = df["Exterior1st"].fillna(df["Exterior1st"].mode()[0])
+df["Exterior2nd"] = df["Exterior2nd"].fillna(df["Exterior2nd"].mode()[0])
+df["SaleType"] = df["SaleType"].fillna(df["SaleType"].mode()[0])
 df["MasVnrArea"] = df["MasVnrArea"].fillna(0)
 ```
 ```python
 # Garage features
-for column in ('GarageType', 'GarageFinish', 'GarageQual', 'GarageCond'): df[column] = df[column].fillna('None')
-for column in ('GarageYrBlt', 'GarageArea', 'GarageCars'): df[column] = df[column].fillna(0)
+for column in ("GarageType", "GarageFinish", "GarageQual", "GarageCond"): df[column] = df[column].fillna("None")
+for column in ("GarageYrBlt", "GarageArea", "GarageCars"): df[column] = df[column].fillna(0)
 
 # Basement features
-for column in ('BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'): df[column] = df[column].fillna(0)
-for column in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'): df[column] = df[column].fillna('None')
+for column in ("BsmtFinSF1", "BsmtFinSF2", "BsmtUnfSF", "TotalBsmtSF", "BsmtFullBath", "BsmtHalfBath"): df[column] = df[column].fillna(0)
+for column in ("BsmtQual", "BsmtCond", "BsmtExposure", "BsmtFinType1", "BsmtFinType2"): df[column] = df[column].fillna('None')
 ```
 ```python
 # Slightly more intuitive fills
-dataset.drop('LotFrontage', axis=1, inplace=True)
-neighborhoodfrontage = train.groupby('Neighborhood')[['LotFrontage']].median()#.rename({'Median': 'LotFrontage'}, axis=1)
-dataset = dataset.merge(neighborhoodfrontage, left_on='Neighborhood', right_index=True, how='left')
+dataset.drop("LotFrontage", axis=1, inplace=True)
+neighborhoodfrontage = train.groupby("Neighborhood")[["LotFrontage"]].median()#.rename({"Median": "LotFrontage"}, axis=1)
+dataset = dataset.merge(neighborhoodfrontage, left_on="Neighborhood", right_index=True, how="left")
 ```
 
 ### Outliers

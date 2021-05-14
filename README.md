@@ -10,6 +10,60 @@ Move that bus!
 ## Part 1 - Data Cleaning
 Does my data contain outliers? What should I do about missing values? Is my data skewed? Why aren’t my dates formatted correctly? Data cleaning answers these questions and provides intuitive solutions. Arguably the most important step in the data science process, data cleaning can easily become deeply frustrating and time intensive. Recent studies suggest that data scientists spend anywhere from 50% to 80% of their time cleaning data rather than creating insights.
 
+### Handling Missing Values
+Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values. In general, one can either drop columns with missing values or impute missing values. Dropping columns entirely can be useful when most values in a column are missing. Imputation fills in the missing value with some number. The imputed value won't be exactly right, however, it helps to produce more accurate predictive models.
+
+```python
+# Calculating and visualizing the percent of missing values per feature
+sns.set_style("darkgrid")
+missing = df.isnull().sum()
+missing = missing[missing > 0]
+missing = (missing / len(df)) * 100
+missing.sort_values(ascending=True, inplace=True)
+sns.barplot(x=missing.tail(15), y=missing.tail(15).index)
+plt.xlabel('Percentage of Missing Columns', fontsize=12)
+plt.ylabel('Feature', fontsize=12)
+plt.title('Percent of Missing Values by Feature', fontsize=15);
+```
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="300" />
+
+```python
+# Miscellaneous features (None)
+df["PoolQC"] = df["PoolQC"].fillna("None")
+df["MiscFeature"] = df["MiscFeature"].fillna("None")
+df["Alley"] = df["Alley"].fillna("None")
+df["Fence"] = df["Fence"].fillna("None")
+df["FireplaceQu"] = df["FireplaceQu"].fillna("None")
+df['MSSubClass'] = df['MSSubClass'].fillna("None")
+df["MasVnrType"] = df["MasVnrType"].fillna("None")
+df["Functional"] = df["Functional"].fillna("Typ")
+```
+```python
+# Miscellaneous features (mode)
+df['MSZoning'] = df['MSZoning'].fillna(df['MSZoning'].mode()[0])
+df['Electrical'] = df['Electrical'].fillna(df['Electrical'].mode()[0])
+df['KitchenQual'] = df['KitchenQual'].fillna(df['KitchenQual'].mode()[0])
+df['Exterior1st'] = df['Exterior1st'].fillna(df['Exterior1st'].mode()[0])
+df['Exterior2nd'] = df['Exterior2nd'].fillna(df['Exterior2nd'].mode()[0])
+df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
+df["MasVnrArea"] = df["MasVnrArea"].fillna(0)
+```
+```python
+# Garage features
+for column in ('GarageType', 'GarageFinish', 'GarageQual', 'GarageCond'): df[column] = df[column].fillna('None')
+for column in ('GarageYrBlt', 'GarageArea', 'GarageCars'): df[column] = df[column].fillna(0)
+
+# Basement features
+for column in ('BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'): df[column] = df[column].fillna(0)
+for column in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'): df[column] = df[column].fillna('None')
+```
+```python
+# Slightly more intuitive fills
+dataset.drop('LotFrontage', axis=1, inplace=True)
+neighborhoodfrontage = train.groupby('Neighborhood')[['LotFrontage']].median()#.rename({'Median': 'LotFrontage'}, axis=1)
+dataset = dataset.merge(neighborhoodfrontage, left_on='Neighborhood', right_index=True, how='left')
+```
+
 ### Outliers
 In plain english, an outlier is an observation that diverges from an overall pattern within a sample. Mathematically, an outlier is usually defined as an observation more than three standard deviations from the mean (although sometimes you'll see 2.5 or 2 as well). Most machine learning algorithms do not work well in the presence of outliers, as they are known to skew mean and standard deviation, reduce the effectiveness of statistical tests and decrease normality.
 
@@ -93,57 +147,4 @@ plt.show()
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/normaldistribution.PNG?raw=true" width="500" height="300" />
 
-### Handling Missing Values
-Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values. In general, one can either drop columns with missing values or impute missing values. Dropping columns entirely can be useful when most values in a column are missing. Imputation fills in the missing value with some number. The imputed value won't be exactly right, however, it helps to produce more accurate predictive models. 
 
-```python
-# Calculating and visualizing the percent of missing values per feature
-sns.set_style("darkgrid")
-missing = df.isnull().sum()
-missing = missing[missing > 0]
-missing = (missing / len(df)) * 100
-missing.sort_values(ascending=True, inplace=True)
-sns.barplot(x=missing.tail(15), y=missing.tail(15).index)
-plt.xlabel('Percentage of Missing Columns', fontsize=12)
-plt.ylabel('Feature', fontsize=12)
-plt.title('Percent of Missing Values by Feature', fontsize=15);
-```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="300" />
-
-```python
-# Miscellaneous features
-df["PoolQC"] = df["PoolQC"].fillna("None")
-df["MiscFeature"] = df["MiscFeature"].fillna("None")
-df["Alley"] = df["Alley"].fillna("None")
-df["Fence"] = df["Fence"].fillna("None")
-df["FireplaceQu"] = df["FireplaceQu"].fillna("None")
-df['MSSubClass'] = df['MSSubClass'].fillna("None")
-```
-```python
-# Miscellaneous features
-df['MSZoning'] = df['MSZoning'].fillna(df['MSZoning'].mode()[0])
-df['Electrical'] = df['Electrical'].fillna(df['Electrical'].mode()[0])
-df['KitchenQual'] = df['KitchenQual'].fillna(df['KitchenQual'].mode()[0])
-df['Exterior1st'] = df['Exterior1st'].fillna(df['Exterior1st'].mode()[0])
-df['Exterior2nd'] = df['Exterior2nd'].fillna(df['Exterior2nd'].mode()[0])
-df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
-```
-```python
-# Garage features
-for column in ('GarageType', 'GarageFinish', 'GarageQual', 'GarageCond'): df[column] = df[column].fillna('None')
-for column in ('GarageYrBlt', 'GarageArea', 'GarageCars'): df[column] = df[column].fillna(0)
-
-# Basement features
-for column in ('BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'): df[column] = df[column].fillna(0)
-for column in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'): df[column] = df[column].fillna('None')
-```
-```python
-# Masonary features
-df["MasVnrType"] = df["MasVnrType"].fillna("None")
-df["MasVnrArea"] = df["MasVnrArea"].fillna(0)
-```
-```python
-# Slightly more intuitive fills
-df["LotFrontage"] = df.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
-df["Functional"] = df["Functional"].fillna("Typ")
-```

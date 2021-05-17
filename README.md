@@ -198,6 +198,18 @@ def plot_mi_scores(scores):
 ### Feature Engineering
 Feature engineering is the process of extracting features or input variables from raw data which can be applied to our model to improve predictive performance and interpretability of results, while reducing computational needs. The process involves a combination of statistical analysis, domain knowledge and creativity.
 
+```python
+# Average neighborhood GrLivArea
+NeighborhoodGrLivArea = train.groupby("Neighborhood")[["GrLivArea"]].median().rename({"GrLivArea": "AvgNeighborhoodGrLivArea"}, axis=1)
+train = train.merge(NeighborhoodGrLivArea, left_on="Neighborhood", right_index=True, how="left")
+test = test.merge(NeighborhoodGrLivArea, left_on="Neighborhood", right_index=True, how="left")
+```
+```python
+# LotFrontage vs AvgNeighborhoodLotFrontage
+train["GrLivArea"] = train["GrLivArea"] / train["AvgNeighborhoodGrLivArea"]
+test["GrLivArea"] = test["GrLivArea"] / test["AvgNeighborhoodGrLivArea"]
+```
+
 
 
 

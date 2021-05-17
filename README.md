@@ -129,6 +129,40 @@ Note - I've decided to delete only two observations as they are blatant outliers
 ### Correlation
 A statistical measurement of the degree to which two variables are linearly related. `Positive correlation` is a relationship between two variables in which both variables move in the same direction. This is when one variable increases while the other increases and visa versa. Whilst `negative correlation` is a relationship where one variable increases as the other decreases. Correlation can be extremely useful when experimenting with feature engineering.
 
+```python
+# Calculating pearson correlation
+matrix = train.corr()
+matrix["SalePrice"].sort_values(ascending=False).head(15)
+```
+```python
+# Masking the upper triangle
+mask = np.zeros_like(corr_matrix, dtype=np.bool)
+mask[np.triu_indices_from(mask)]= True
+
+# Visualizing correlation with a heatmap
+f, ax = plt.subplots(figsize=(10, 10))
+heatmap = sns.heatmap(corr_matrix,
+                      mask = mask,
+                      square = True,
+                      linewidths = .5,
+                      cmap = 'coolwarm',
+                      cbar_kws = {'shrink': .4,
+                                "ticks" : [-1, -.5, 0, 0.5, 1]},
+                      vmin = -1,
+                      vmax = 1,
+                      annot = False,
+                      annot_kws = {"size": 12})
+
+# Setting column names as labels
+ax.set_yticklabels(corr_matrix.columns, rotation = 0)
+ax.set_xticklabels(corr_matrix.columns)
+ax.set_title("Feature Correlation to SalePrice")
+
+# Setting styles
+sns.set_style('whitegrid')
+sns.set_style({'xtick.bottom': True}, {'ytick.left': True})
+```
+
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/correlation.PNG?raw=true" width="500" height="400" />
 
 ### Mutual Information
@@ -136,6 +170,30 @@ Mutual information is a great general-purpose metric and especially useful at th
 
 * It's possible for a feature to be very informative when interacting with other features, but not so informative all alone. MI can't detect interactions between features. It is a univariate metric.
 * The actual usefulness of a feature depends on the model you use it with. A feature is only useful to the extent that its relationship with the target is one your model can learn. Just because a feature has a high MI score doesn't mean your model will be able to do anything with that information. You may need to transform the feature first to expose the association.
+
+```python
+# Creating a function to calculate MI scores
+def make_mi_scores(X, y):
+    X = X.copy()
+    for colname in X.select_dtypes(["object", "category"]):
+        X[colname], _ = X[colname].factorize()
+    # All discrete features should now have integer dtypes
+    discrete_features = [pd.api.types.is_integer_dtype(t) for t in X.dtypes]
+    mi_scores = mutual_info_regression(X, y, discrete_features=discrete_features, random_state=0)
+    mi_scores = pd.Series(mi_scores, name="MI Scores", index=X.columns)
+    mi_scores = mi_scores.sort_values(ascending=False)
+    return mi_scores
+```
+```python
+# Creating a function to visualize MI scores
+def plot_mi_scores(scores):
+    scores = scores.sort_values(ascending=True)
+    width = np.arange(len(scores))
+    ticks = list(scores.index)
+    plt.barh(width, scores)
+    plt.yticks(width, ticks)
+    plt.title("Mutual Information Scores")
+```
 
 ### Feature Engineering
 Feature engineering is the process of extracting features or input variables from raw data which can be applied to our model to improve predictive performance and interpretability of results, while reducing computational needs. The process involves a combination of statistical analysis, domain knowledge and creativity.

@@ -126,6 +126,26 @@ fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Pr
 
 Note - I've decided to delete only two observations as they are blatant outliers (extremely large areas for very low prices). The training data probably contains additional outliers, however, removing all outliers may actually negatively impact our model if ever outliers were present in the test data. Instead of removing all outliers, I'll address skewed data in later sections and train our model to be robust on outliers.
 
+### Correlation
+A statistical measurement of the degree to which two variables are linearly related. `Positive correlation` is a relationship between two variables in which both variables move in the same direction. This is when one variable increases while the other increases and visa versa. Whilst `negative correlation` is a relationship where one variable increases as the other decreases. Correlation can be extremely useful when experimenting with feature engineering.
+
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/correlation.PNG?raw=true" width="500" height="400" />
+
+### Mutual Information
+Mutual information is a great general-purpose metric and especially useful at the start of feature development. Mutual information is a lot like correlation in that it measures a relationship between two quantities. However, the advantage of mutual information is that it can detect any kind of relationship, while correlation only detects linear relationships. The mutual information between two quantities is a measure of the extent to which knowledge of one quantity reduces uncertainty about the other. If you knew the value of a feature, how much more confident would you be about the target?
+
+* It's possible for a feature to be very informative when interacting with other features, but not so informative all alone. MI can't detect interactions between features. It is a univariate metric.
+* The actual usefulness of a feature depends on the model you use it with. A feature is only useful to the extent that its relationship with the target is one your model can learn. Just because a feature has a high MI score doesn't mean your model will be able to do anything with that information. You may need to transform the feature first to expose the association.
+
+### Feature Engineering
+Feature engineering is the process of extracting features or input variables from raw data which can be applied to our model to improve predictive performance and interpretability of results, while reducing computational needs. The process involves a combination of statistical analysis, domain knowledge and creativity.
+
+
+
+
+
+
+
 ### Skewness & Kurtosis
 Skewness measures the degree of distortion from the symmetrical bell curve or the normal distribution. A symmetrical or normal distribution will have a skewness of 0. Skewness between -0.5 and 0.5 is considered fairly symmetrical. Skewness between -1 and -0.5 or between 0.5 and 1 is considered moderately skewed. Skewness less than -1 or greater than 1 is considered highly skewed.
 

@@ -13,18 +13,6 @@ Does my data contain outliers? What should I do about missing values? Is my data
 ### Handling Missing Values
 Python libraries represent missing numbers as NaN which is short for "not a number". Most libraries (including scikit-learn) will give you an error if you try to build a model using data with missing values. In general, one can either drop columns with missing values or impute missing values. Dropping columns entirely can be useful when most values in a column are missing. Imputation fills in the missing value with some number. The imputed value won't be exactly right, however, it helps to produce more accurate predictive models.
 
-```python
-# Calculating and visualizing the percent of missing values per feature
-sns.set_style("darkgrid")
-missing = df.isnull().sum()
-missing = missing[missing > 0]
-missing = (missing / len(df)) * 100
-missing.sort_values(ascending=True, inplace=True)
-sns.barplot(x=missing.tail(15), y=missing.tail(15).index)
-plt.xlabel("Percentage of Missing Columns", fontsize=12)
-plt.ylabel("Feature", fontsize=12)
-plt.title("Percent of Missing Values by Feature", fontsize=15);
-```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="300" />
 
 ```python
@@ -58,73 +46,117 @@ for column in ("BsmtFinSF1", "BsmtFinSF2", "BsmtUnfSF", "TotalBsmtSF", "BsmtFull
 for column in ("BsmtQual", "BsmtCond", "BsmtExposure", "BsmtFinType1", "BsmtFinType2"): df[column] = df[column].fillna('None')
 ```
 ```python
-# Slightly more intuitive fills
-dataset.drop("LotFrontage", axis=1, inplace=True)
-neighborhoodfrontage = train.groupby("Neighborhood")[["LotFrontage"]].median()#.rename({"Median": "LotFrontage"}, axis=1)
-dataset = dataset.merge(neighborhoodfrontage, left_on="Neighborhood", right_index=True, how="left")
+# Converting numerical features to categorical features
+df['MSSubClass'] = df['MSSubClass'].apply(str)
+df['OverallCond'] = df['OverallCond'].astype(str)
+df['YrSold'] = df['YrSold'].astype(str)
+df['MoSold'] = df['MoSold'].astype(str)
 ```
-### Baseline Model
-Establishing a baseline score will allow us to monitor our model's predictive performance following additional feature engineering. There are three metrics that are commonly used to evaluate the predictive performance of a regression model.
+## Part 2 - Iterative Modeling
 
-* `Mean Squared Error (MSE)` - The MSE is calculated as the mean or average of the squared differences between predicted and expected target values. Squaring has the effect of inflating or magnifying large errors. That is, the larger the difference between the predicted and expected values, the larger the resulting squared positive error. This has the effect of “punishing” models more for larger errors. The calculation of MSE is considered fairly sensitive to outliers.
+### Baseline w/ 10-Fold Cross-validation
+Using a naive model we can establish a baseline score that will allow us to monitor our model's predictive performance following additional data processing and feature engineering. As we iteratively cycle through efforts to improve our model we will observe `MSE`, `RMSE` and `RMSLE`. Mean squared error measures the average of the squares of our model's errors — that is, the average squared difference between the estimated values and the actual values. `RMSE` simply calculates the root of `MSE` while `RMSLE` calculate the log root of MSE. It is important to note that these metrics are quite sensitive to outliers.
 
-* `Root Mean Squared Error (RMSE)` - Mathematically speaking, the RMSE is the square root of the MSE. It is a good idea to first establish a baseline RMSE using a naive predictive model. A model that achieves an RMSE better than the RMSE for the naive model has skill. Again, it is important to note that RMSE, similar to MSE, punishes models for larger errors and is sensitive to outliers.
-
-* `Root Mean Squared Logarithmic Error (RMSLE)` - Is an extension on RMSE that is commonly used when a regression model is trained on large actual and predicted values. For example, when predicting residential housing prices, values can range from $100,000 to $1,000,000. In the case of RMSLE, we take the log of our model's predictions and actual values so that large errors and outliers are scaled down to limit their effect.
+* `Cross-validation` is a variation of resampling that can be used to evaluate machine learning models on a limited data sample. The cross-validation modeling process is run on different subsets of our data to get multiple (out of sample) measures of model quality. For example, consider a 10 fold modeling process. We would divide our data into 10 pieces, each representing 10% of our full dataset. Experiment 1 would be run using the first fold as a holdout or test set, while everything else would be considered training data. This provides a measure of model quality based on a 10% holdout set. This process is repeated until every fold is used once as the holdout set.
 
 ```python
-# MSE Scoring
-def score_dataset(model, df):
-  
-  # initiate X and y
-  X = df.copy()
+# Creating a reusable function to calculate RMSE & RMSLE
+def evaluate(data, model):
+
+  # Initializing X and y
+  X = data.copy()
   y = X.pop("SalePrice")
-  
-  # preprocessing of X and y
-  X = pd.get_dummies(X).reset_index(drop=True)
   log_y = np.log(y)
+
+  # Initializing an encoder
+  ohe = ce.OneHotEncoder()
+  X = ohe.fit_transform(X)
+
+  # RMSE 10-fold cross validation
+  kfold = KFold(n_splits=10,shuffle=True,random_state=42)
+  mse = -1 * cross_val_score(model, X, y, scoring="neg_mean_squared_error", cv = kfold)
+  rmse = np.sqrt(mse)
   
-  # cross validation
-  scores = cross_val_score(model, X, log_y, cv=5, scoring="neg_mean_squared_error")
-  score = -1 * scores.mean()
-  score = np.sqrt(score)
-  return score
+  # RMSLE 10-fold cross validation
+  kfold = KFold(n_splits=10,shuffle=True,random_state=42)
+  msle = -1 * cross_val_score(model, X, log_y, scoring="neg_mean_squared_error", cv = kfold)
+  rmsle = np.sqrt(msle)
+  return rmse, rmsle
 ```
-```python
-# Calling the above function
-boost = xgb.XGBRegressor()
-baseline = score_dataset(boost, train)
-print(f"Baseline RMSLE score = {baseline}")
+```
+RMSE = 28312.99466499266
+RMSLE = 0.13216266198134258
 ```
 
 ### Outliers
-In plain english, an outlier is an observation that diverges from an overall pattern within a sample. Mathematically, an outlier is usually defined as an observation more than three standard deviations from the mean (although sometimes you'll see 2.5 or 2 as well). Most machine learning algorithms do not work well in the presence of outliers, as they are known to skew mean and standard deviation, reduce the effectiveness of statistical tests and decrease normality.
+An outlier is an observation that diverges from an overall pattern within a sample. Mathematically, an outlier is usually defined as an observation more than three standard deviations from the mean (although sometimes you'll see 2.5 or 2 as well). Most machine learning algorithms do not work well in the presence of outliers, as they are known to skew mean and standard deviation, reduce the effectiveness of statistical tests and decrease normality.
 
-There is no precise way to define outliers in general because of the specifics of each data set. However, there are multiple methods that can be used to identify "potential" otliers. As the domain experts, we must interpret the observations and decide whether a value is an outlier or not. Said identification methods include Z-scores, Robust Z-scores, I.Q.R measurements and basic visualizations.
+Because of the nuances of each data set, there is no precise way to define outliers in general because of the specifics of each data set. However, there are multiple methods that can be used to identify "potential" otliers. As the domain experts, we must interpret the observations and decide whether a value is an outlier or not. Said identification methods include Z-scores, Robust Z-scores, I.Q.R measurements and basic visualizations.
 
-* `Univariate outliers` - can be found when we look at distribution of a single variable. Boxplots are commonly used to visualize and detect univariate outliers.
-* `Multi-variate outliers` - are outliers in an n-dimensional space. In order to find them, you have to look at distributions in multi-dimensions.
-
-```python
-# Multi-variate analysis saleprice/grlivarea
-sns.set_style('darkgrid')
-fig = sns.scatterplot(data=df, x=df['GrLivArea'], y=df['SalePrice'])
-fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Price (w/outliers)');
-```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/outliarzzz.PNG?raw=true" width="500" height="300" />
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/SalePriceOutliersWithCutoff.PNG?raw=true" width="400" height="300" />
 
 ```python
-# intuitively deleting outliers (bottom right corner)
-df = df.drop(df[(df['GrLivArea']>4000) & (df['SalePrice']<300000)].index)
-
-# Visualization w/o outliers
-sns.set_style('darkgrid')
-fig = sns.scatterplot(data=df, x=df['GrLivArea'], y=df['SalePrice'])
-fig.set(xlabel='Living Area', ylabel='Sale Price', title='Living Area vs Sale Price (w/o outliers)');
+# I've decided to delete observations with SalePrice > $550,000
+df.drop(df[(df["SalePrice"]>550000)].index, inplace=True)
 ```
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/nooutliarz.PNG?raw=true" width="500" height="300" />
+```
+# Has our model improved? It sure has!
+RMSE = 24438.453471065826
+RMSLE = 0.13041266719439537
+```
 
-Note - I've decided to delete only two observations as they are blatant outliers (extremely large areas for very low prices). The training data probably contains additional outliers, however, removing all outliers may actually negatively impact our model if ever outliers were present in the test data. Instead of removing all outliers, I'll address skewed data in later sections and train our model to be robust on outliers.
+### Feature Engineering
+Feature engineering is the process of extracting features or input variables from raw data which can be applied to our model to improve predictive performance and interpretability of results, while reducing computational needs. The process involves a combination of statistical analysis, domain knowledge and creativity.
+
+
+```python
+# LivLotRatio
+train["LivLotRatio"] = train["GrLivArea"] / train["LotArea"]
+test["LivLotRatio"] = test["GrLivArea"] / test["LotArea"]
+```
+```python
+# TotalSf
+train["TotalSF"] = train["TotalBsmtSF"] + train["1stFlrSF"] + train["2ndFlrSF"]
+test["TotalSF"] = test["TotalBsmtSF"] + test["1stFlrSF"] + test["2ndFlrSF"]
+```
+```python
+# AvgNeighborhoodGrLivArea
+NeighborhoodGrLivArea = train.groupby("Neighborhood")[["GrLivArea"]].median().rename({"GrLivArea": "AvgNeighborhoodGrLivArea"}, axis=1)
+train = train.merge(NeighborhoodGrLivArea, left_on="Neighborhood", right_index=True, how="left")
+test = test.merge(NeighborhoodGrLivArea, left_on="Neighborhood", right_index=True, how="left")
+
+# GrLivAreaVariance
+train["GrLivAreaVariance"] = train["GrLivArea"] / train["AvgNeighborhoodGrLivArea"]
+test["GrLivAreaVariance"] = test["GrLivArea"] / test["AvgNeighborhoodGrLivArea"]
+
+# Drop AvgNeighborhoodGrLivArea
+train.drop("AvgNeighborhoodGrLivArea", axis=1, inplace=True)
+test.drop("AvgNeighborhoodGrLivArea", axis=1, inplace=True)
+```
+```python
+# AvgNeighborhoodOverallQual
+NeighborhoodOverallQual = train.groupby("Neighborhood")[["OverallQual"]].mean().rename({"OverallQual": "AvgNeighborhoodOverallQual"}, axis=1)
+train = train.merge(NeighborhoodOverallQual, left_on="Neighborhood", right_index=True, how="left")
+test = test.merge(NeighborhoodOverallQual, left_on="Neighborhood", right_index=True, how="left")
+
+# OverallQualVariance
+train["OverallQualVariance"] = train["OverallQual"] - train["AvgNeighborhoodOverallQual"]
+test["OverallQualVariance"] = test["OverallQual"] - test["AvgNeighborhoodOverallQual"]
+
+# Drop AvgNeighborhoodOverallQual
+train.drop("AvgNeighborhoodOverallQual", axis=1, inplace=True)
+test.drop("AvgNeighborhoodOverallQual", axis=1, inplace=True)
+```
+```
+# Has our model improved? It sure has!
+RMSE = 24457.020994094106
+RMSLE = 0.1289761000009596
+```
+
+
+
+
+
 
 ### Correlation
 A statistical measurement of the degree to which two variables are linearly related. `Positive correlation` is a relationship between two variables in which both variables move in the same direction. This is when one variable increases while the other increases and visa versa. Whilst `negative correlation` is a relationship where one variable increases as the other decreases. Correlation can be extremely useful when experimenting with feature engineering.
@@ -194,26 +226,6 @@ def plot_mi_scores(scores):
     plt.yticks(width, ticks)
     plt.title("Mutual Information Scores")
 ```
-
-### Feature Engineering
-Feature engineering is the process of extracting features or input variables from raw data which can be applied to our model to improve predictive performance and interpretability of results, while reducing computational needs. The process involves a combination of statistical analysis, domain knowledge and creativity.
-
-```python
-# Average neighborhood GrLivArea
-NeighborhoodGrLivArea = train.groupby("Neighborhood")[["GrLivArea"]].median().rename({"GrLivArea": "AvgNeighborhoodGrLivArea"}, axis=1)
-train = train.merge(NeighborhoodGrLivArea, left_on="Neighborhood", right_index=True, how="left")
-test = test.merge(NeighborhoodGrLivArea, left_on="Neighborhood", right_index=True, how="left")
-```
-```python
-# LotFrontage vs AvgNeighborhoodLotFrontage
-train["GrLivArea"] = train["GrLivArea"] / train["AvgNeighborhoodGrLivArea"]
-test["GrLivArea"] = test["GrLivArea"] / test["AvgNeighborhoodGrLivArea"]
-```
-
-
-
-
-
 
 
 ### Skewness & Kurtosis

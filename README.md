@@ -16,11 +16,19 @@ Python libraries represent missing numbers as NaN which is short for "not a numb
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/percentofmissingvalues.PNG?raw=true" width="500" height="300" />
 
 ```python
+# Calculating percentage of missing values
+percentage = df.isnull().sum() / len(df)
+missing = percentage[percentage > 0.0].sort_values(ascending=False)
+missing
+```
+```python
+# Dropping featureg missing more than 50% of their observations
+missing = missing[missing > 0.5]
+df.drop(missing.index, axis=1, inplace=True)
+```
+
+```python
 # Miscellaneous features (None)
-df["PoolQC"] = df["PoolQC"].fillna("None")
-df["MiscFeature"] = df["MiscFeature"].fillna("None")
-df["Alley"] = df["Alley"].fillna("None")
-df["Fence"] = df["Fence"].fillna("None")
 df["FireplaceQu"] = df["FireplaceQu"].fillna("None")
 df['MSSubClass'] = df['MSSubClass'].fillna("None")
 df["MasVnrType"] = df["MasVnrType"].fillna("None")
@@ -152,82 +160,6 @@ test.drop("AvgNeighborhoodOverallQual", axis=1, inplace=True)
 RMSE = 24457.020994094106
 RMSLE = 0.1289761000009596
 ```
-
-
-
-
-
-
-### Correlation
-A statistical measurement of the degree to which two variables are linearly related. `Positive correlation` is a relationship between two variables in which both variables move in the same direction. This is when one variable increases while the other increases and visa versa. Whilst `negative correlation` is a relationship where one variable increases as the other decreases. Correlation can be extremely useful when experimenting with feature engineering.
-
-```python
-# Calculating pearson correlation
-matrix = train.corr()
-matrix["SalePrice"].sort_values(ascending=False).head(15)
-```
-```python
-# Masking the upper triangle
-mask = np.zeros_like(corr_matrix, dtype=np.bool)
-mask[np.triu_indices_from(mask)]= True
-
-# Visualizing correlation with a heatmap
-f, ax = plt.subplots(figsize=(10, 10))
-heatmap = sns.heatmap(corr_matrix,
-                      mask = mask,
-                      square = True,
-                      linewidths = .5,
-                      cmap = 'coolwarm',
-                      cbar_kws = {'shrink': .4,
-                                "ticks" : [-1, -.5, 0, 0.5, 1]},
-                      vmin = -1,
-                      vmax = 1,
-                      annot = False,
-                      annot_kws = {"size": 12})
-
-# Setting column names as labels
-ax.set_yticklabels(corr_matrix.columns, rotation = 0)
-ax.set_xticklabels(corr_matrix.columns)
-ax.set_title("Feature Correlation to SalePrice")
-
-# Setting styles
-sns.set_style('whitegrid')
-sns.set_style({'xtick.bottom': True}, {'ytick.left': True})
-```
-
-<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/correlation.PNG?raw=true" width="500" height="400" />
-
-### Mutual Information
-Mutual information is a great general-purpose metric and especially useful at the start of feature development. Mutual information is a lot like correlation in that it measures a relationship between two quantities. However, the advantage of mutual information is that it can detect any kind of relationship, while correlation only detects linear relationships. The mutual information between two quantities is a measure of the extent to which knowledge of one quantity reduces uncertainty about the other. If you knew the value of a feature, how much more confident would you be about the target?
-
-* It's possible for a feature to be very informative when interacting with other features, but not so informative all alone. MI can't detect interactions between features. It is a univariate metric.
-* The actual usefulness of a feature depends on the model you use it with. A feature is only useful to the extent that its relationship with the target is one your model can learn. Just because a feature has a high MI score doesn't mean your model will be able to do anything with that information. You may need to transform the feature first to expose the association.
-
-```python
-# Creating a function to calculate MI scores
-def make_mi_scores(X, y):
-    X = X.copy()
-    for colname in X.select_dtypes(["object", "category"]):
-        X[colname], _ = X[colname].factorize()
-    # All discrete features should now have integer dtypes
-    discrete_features = [pd.api.types.is_integer_dtype(t) for t in X.dtypes]
-    mi_scores = mutual_info_regression(X, y, discrete_features=discrete_features, random_state=0)
-    mi_scores = pd.Series(mi_scores, name="MI Scores", index=X.columns)
-    mi_scores = mi_scores.sort_values(ascending=False)
-    return mi_scores
-```
-```python
-# Creating a function to visualize MI scores
-def plot_mi_scores(scores):
-    scores = scores.sort_values(ascending=True)
-    width = np.arange(len(scores))
-    ticks = list(scores.index)
-    plt.barh(width, scores)
-    plt.yticks(width, ticks)
-    plt.title("Mutual Information Scores")
-```
-
-
 ### Skewness & Kurtosis
 Skewness measures the degree of distortion from the symmetrical bell curve or the normal distribution. A symmetrical or normal distribution will have a skewness of 0. Skewness between -0.5 and 0.5 is considered fairly symmetrical. Skewness between -1 and -0.5 or between 0.5 and 1 is considered moderately skewed. Skewness less than -1 or greater than 1 is considered highly skewed.
 
@@ -248,11 +180,6 @@ plt.legend(['Normal dist. ($\mu=${:.2f} and $\sigma=${:.2f} )'.format(mu, sigma)
 plt.ylabel('Frequency')
 plt.title('SalePrice distribution')
 plt.ticklabel_format(style='plain');
-
-# Visualize the QQ-plot
-fig = plt.figure()
-res = stats.probplot(df['SalePrice'], plot=plt)
-plt.show();
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/skeweddistribution.PNG?raw=true" width="500" height="300" />
 
@@ -274,12 +201,50 @@ plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigm
 plt.ylabel('Frequency')
 plt.title('SalePrice distribution')
 plt.ticklabel_format(style='plain');
-
-# Visualize the QQ-plot
-fig = plt.figure()
-res = stats.probplot(normalized['SalePrice'], plot=plt)
-plt.show()
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/normaldistribution.PNG?raw=true" width="500" height="300" />
 
+## Part 3 - Final Predictions
 
+### GridSearchCV
+The predictive performance of our model significantly depends on our decided hyper-parameters - also known as learning parameters. GridSearchCV is a valuable tool as it allows us to test any combination of hyper-parameters in a fairly reasonable amount of time. SK-learn's GridSearchCV function iteratively fits our model to our training data using a dictionary of predefined hyper-parameters in order to determine the hyper-parameters best suited to improve our model's predictive performance. 
+
+```python
+# Feature matrix X
+X_train = train.copy()
+y_train = X_train.pop("SalePrice")
+
+# Target vector y
+X_test = test.copy()
+y_test = X_test.pop("SalePrice")
+
+# Initializing an encoder
+ohe = ce.OneHotEncoder(handle_unknown="ignore")
+X_train = ohe.fit_transform(X_train)
+X_test = ohe.transform(X_test)
+```
+```python
+# Initializing our model
+model = xgb.XGBRegressor()
+
+# GridSearchCV with 10-fold cross-validation
+parameters = {'max_depth' : [2, 3, 4], 'n_estimators' : [500, 750, 1000] , 'learning_rate' : [0.1, 0.05, 0.01]}
+grid = GridSearchCV(estimator=model, param_grid=parameters, scoring="neg_mean_squared_error", cv=10, verbose=0)
+grid.fit(X_train, y_train, early_stopping_rounds=5, eval_set=[(X_test, y_test)])
+```
+### Grid.Predict
+```python
+# Predictions using our fitted grid
+predictions = grid.predict(X_test)
+
+# Calculating RMSE
+from sklearn.metrics import mean_squared_error
+msle = mean_squared_error(y_test, predictions)
+rmse = np.sqrt(msle)
+print(f"RMSE = {rmse}")
+```
+```
+# Scoring our final predictions
+RMSE = 23304.50004225903
+RMSLE = 0.12817779878478977
+```

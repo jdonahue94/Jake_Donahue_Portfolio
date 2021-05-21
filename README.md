@@ -204,8 +204,6 @@ plt.ticklabel_format(style='plain');
 ```
 <img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/normaldistribution.PNG?raw=true" width="500" height="300" />
 
-## Part 3 - Final Predictions
-
 ### GridSearchCV
 The predictive performance of our model significantly depends on our decided hyper-parameters - also known as learning parameters. GridSearchCV is a valuable tool as it allows us to test any combination of hyper-parameters in a fairly reasonable amount of time. SK-learn's GridSearchCV function iteratively fits our model to our training data using a dictionary of predefined hyper-parameters in order to determine the hyper-parameters best suited to improve our model's predictive performance. 
 
@@ -232,7 +230,9 @@ parameters = {'max_depth' : [2, 3, 4], 'n_estimators' : [500, 750, 1000] , 'lear
 grid = GridSearchCV(estimator=model, param_grid=parameters, scoring="neg_mean_squared_error", cv=10, verbose=0)
 grid.fit(X_train, y_train, early_stopping_rounds=5, eval_set=[(X_test, y_test)])
 ```
-### Grid.Predict
+## Part 3 - Final Predictions
+Using the best fitted grid we can make predictions and calculate various scoring metrics.
+
 ```python
 # Predictions using our fitted grid
 predictions = grid.predict(X_test)
@@ -248,3 +248,8 @@ print(f"RMSE = {rmse}")
 RMSE = 23304.50004225903
 RMSLE = 0.12817779878478977
 ```
+<img src="https://github.com/jdonahue94/DonnyDoesDataScience1/blob/main/visualizations/FinalPredictions.PNG?raw=true" width="600" height="300" />
+
+
+### The Bias-Variance Tradeoff
+`Bias` is the inability of a machine learning model to capture the true relationship within a data set. `Variance` is the difference in model fits between training and testing data sets. The perfect model is both complex and flexible, it minimizes bias and variance and avoids the mistake of overfitting and underfitting.
